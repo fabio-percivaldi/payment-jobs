@@ -6,7 +6,10 @@ const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './database.sqlite3',
 })
-
+const PROFILE_TYPES = {
+  CLIENT: 'client',
+  CONTRACTOR: 'contractor',
+}
 class Profile extends Sequelize.Model {}
 Profile.init(
   {
@@ -26,7 +29,7 @@ Profile.init(
       type: Sequelize.DECIMAL(12, 2),
     },
     type: {
-      type: Sequelize.ENUM('client', 'contractor'),
+      type: Sequelize.ENUM(Object.values(PROFILE_TYPES)),
     },
   },
   {
@@ -35,6 +38,11 @@ Profile.init(
   }
 )
 
+const CONTRACT_STATUS = {
+  NEW: 'new',
+  IN_PROGRESS: 'in_progress',
+  TERMINATED: 'terminated',
+}
 class Contract extends Sequelize.Model {}
 Contract.init(
   {
@@ -43,7 +51,7 @@ Contract.init(
       allowNull: false,
     },
     status: {
-      type: Sequelize.ENUM('new', 'in_progress', 'terminated'),
+      type: Sequelize.ENUM(Object.values(CONTRACT_STATUS)),
     },
   },
   {
@@ -89,4 +97,6 @@ module.exports = {
   Profile,
   Contract,
   Job,
+  PROFILE_TYPES,
+  CONTRACT_STATUS,
 }
