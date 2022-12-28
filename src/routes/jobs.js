@@ -44,7 +44,7 @@ router.get('/jobs/unpaid', getProfile, async(req, res) => {
     } })
   if (!contracts) { return res.status(404).end() }
   const jobs = contracts.map(contract => contract.Jobs)
-  res.json(...jobs)
+  res.json(jobs.flat())
 })
 
 module.exports = router
