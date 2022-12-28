@@ -7,10 +7,17 @@ const request = require('supertest')
 const { Job, Profile } = require('../src/model')
 
 app.use(bodyParser.json())
+// warning: this is an in place operation
+const removeMetadata = (records) => {
+  return records.map(record => {
+    delete record.createdAt
+    delete record.updatedAt
+    return record
+  })
+}
 
 tap.test('GET /jobs/unpaid by id', async test => {
   test.test('200 - return the list of unpaid jobs given a client id', async assert => {
-    // TODO change the check on createdAt and updatedAt
     const expectedBody = [{
       id: 2,
       description: 'work',
@@ -18,8 +25,6 @@ tap.test('GET /jobs/unpaid by id', async test => {
       paid: null,
       paymentDate: null,
       ContractId: 2,
-      createdAt: '2022-12-28T23:05:03.205Z',
-      updatedAt: '2022-12-28T23:05:03.205Z',
     }]
 
     const response = await request(app)
@@ -27,12 +32,11 @@ tap.test('GET /jobs/unpaid by id', async test => {
       .set('profile_id', 1)
 
     assert.equal(response.statusCode, 200)
-    assert.strictSame(response.body, expectedBody)
+    assert.strictSame(removeMetadata(response.body), expectedBody)
     assert.end()
   })
 
   test.test('200 - return the list of unpaid jobs given a contractor id', async assert => {
-    // TODO change the check on createdAt and updatedAt
     const expectedBody = [{
       id: 2,
       description: 'work',
@@ -40,8 +44,6 @@ tap.test('GET /jobs/unpaid by id', async test => {
       paid: null,
       paymentDate: null,
       ContractId: 2,
-      createdAt: '2022-12-28T23:05:03.205Z',
-      updatedAt: '2022-12-28T23:05:03.205Z',
     },
     {
       id: 3,
@@ -49,8 +51,6 @@ tap.test('GET /jobs/unpaid by id', async test => {
       price: 202,
       paid: null,
       paymentDate: null,
-      createdAt: '2022-12-28T23:05:03.205Z',
-      updatedAt: '2022-12-28T23:05:03.205Z',
       ContractId: 3,
     }]
 
@@ -59,7 +59,7 @@ tap.test('GET /jobs/unpaid by id', async test => {
       .set('profile_id', 6)
 
     assert.equal(response.statusCode, 200)
-    assert.strictSame(response.body, expectedBody)
+    assert.strictSame(removeMetadata(response.body), expectedBody)
     assert.end()
   })
 

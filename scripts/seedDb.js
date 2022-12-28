@@ -13,6 +13,8 @@ async function seed() {
   // insert data
   await Promise.all([
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 1,
       firstName: 'Harry',
       lastName: 'Potter',
@@ -21,6 +23,8 @@ async function seed() {
       type: 'client',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 2,
       firstName: 'Mr',
       lastName: 'Robot',
@@ -29,6 +33,8 @@ async function seed() {
       type: 'client',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 3,
       firstName: 'John',
       lastName: 'Snow',
@@ -37,6 +43,8 @@ async function seed() {
       type: 'client',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 4,
       firstName: 'Ash',
       lastName: 'Kethcum',
@@ -45,6 +53,8 @@ async function seed() {
       type: 'client',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 5,
       firstName: 'John',
       lastName: 'Lenon',
@@ -53,6 +63,8 @@ async function seed() {
       type: 'contractor',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 6,
       firstName: 'Linus',
       lastName: 'Torvalds',
@@ -61,6 +73,8 @@ async function seed() {
       type: 'contractor',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 7,
       firstName: 'Alan',
       lastName: 'Turing',
@@ -69,6 +83,8 @@ async function seed() {
       type: 'contractor',
     }),
     Profile.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 8,
       firstName: 'Aragorn',
       lastName: 'II Elessar Telcontarvalds',
@@ -77,6 +93,8 @@ async function seed() {
       type: 'contractor',
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 1,
       terms: 'bla bla bla',
       status: 'terminated',
@@ -84,6 +102,8 @@ async function seed() {
       ContractorId: 5,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 2,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -91,6 +111,8 @@ async function seed() {
       ContractorId: 6,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 3,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -98,6 +120,8 @@ async function seed() {
       ContractorId: 6,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 4,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -105,6 +129,8 @@ async function seed() {
       ContractorId: 7,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 5,
       terms: 'bla bla bla',
       status: 'new',
@@ -112,6 +138,8 @@ async function seed() {
       ContractorId: 8,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 6,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -119,6 +147,8 @@ async function seed() {
       ContractorId: 7,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 7,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -126,6 +156,8 @@ async function seed() {
       ContractorId: 7,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 8,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -133,6 +165,8 @@ async function seed() {
       ContractorId: 6,
     }),
     Contract.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       id: 9,
       terms: 'bla bla bla',
       status: 'in_progress',
@@ -140,31 +174,43 @@ async function seed() {
       ContractorId: 8,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       ContractId: 1,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 201,
       ContractId: 2,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 202,
       ContractId: 3,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       ContractId: 4,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       ContractId: 7,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 2020,
       paid: true,
@@ -172,6 +218,8 @@ async function seed() {
       ContractId: 7,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       paid: true,
@@ -179,6 +227,8 @@ async function seed() {
       ContractId: 2,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       paid: true,
@@ -186,6 +236,8 @@ async function seed() {
       ContractId: 3,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       paid: true,
@@ -193,6 +245,8 @@ async function seed() {
       ContractId: 1,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 200,
       paid: true,
@@ -200,6 +254,8 @@ async function seed() {
       ContractId: 5,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 21,
       paid: true,
@@ -207,6 +263,8 @@ async function seed() {
       ContractId: 1,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 21,
       paid: true,
@@ -214,6 +272,8 @@ async function seed() {
       ContractId: 2,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 121,
       paid: true,
@@ -221,6 +281,8 @@ async function seed() {
       ContractId: 3,
     }),
     Job.create({
+      createdAt: new Date('2022-12-25T20:00:00.000Z'),
+      updatedAt: new Date('2022-12-25T20:00:00.000Z'),
       description: 'work',
       price: 121,
       paid: true,

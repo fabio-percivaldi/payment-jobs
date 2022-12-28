@@ -7,15 +7,21 @@ const request = require('supertest')
 
 app.use(bodyParser.json())
 
+// warning: this is an in place operation
+const removeMetadata = (records) => {
+  return records.map(record => {
+    delete record.createdAt
+    delete record.updatedAt
+    return record
+  })
+}
+
 tap.test('GET /contracts/:id by id', async test => {
   test.test('200 - return the contract given an id', async assert => {
-    // TODO change the check on createdAt and updatedAt
     const expectedBody = {
       id: 1,
       terms: 'bla bla bla',
       status: 'terminated',
-      createdAt: '2022-12-28T23:05:03.204Z',
-      updatedAt: '2022-12-28T23:05:03.204Z',
       ContractorId: 5,
       ClientId: 1,
     }
@@ -24,7 +30,7 @@ tap.test('GET /contracts/:id by id', async test => {
       .set('profile_id', 5)
 
     assert.equal(response.statusCode, 200)
-    assert.strictSame(response.body, expectedBody)
+    assert.strictSame(...removeMetadata([response.body]), expectedBody)
     assert.end()
   })
 
@@ -54,8 +60,6 @@ tap.test('GET /contracts', async test => {
         id: 2,
         terms: 'bla bla bla',
         status: 'in_progress',
-        createdAt: '2022-12-28T23:05:03.204Z',
-        updatedAt: '2022-12-28T23:05:03.204Z',
         ClientId: 1,
         ContractorId: 6,
       },
@@ -63,8 +67,6 @@ tap.test('GET /contracts', async test => {
         id: 3,
         terms: 'bla bla bla',
         status: 'in_progress',
-        createdAt: '2022-12-28T23:05:03.204Z',
-        updatedAt: '2022-12-28T23:05:03.204Z',
         ClientId: 2,
         ContractorId: 6,
       },
@@ -72,8 +74,6 @@ tap.test('GET /contracts', async test => {
         id: 8,
         terms: 'bla bla bla',
         status: 'in_progress',
-        createdAt: '2022-12-28T23:05:03.205Z',
-        updatedAt: '2022-12-28T23:05:03.205Z',
         ContractorId: 6,
         ClientId: 4,
       },
@@ -84,7 +84,7 @@ tap.test('GET /contracts', async test => {
       .set('profile_id', 6)
 
     assert.equal(response.statusCode, 200)
-    assert.strictSame(response.body, expectedBody)
+    assert.strictSame(removeMetadata(response.body), expectedBody)
     assert.end()
   })
 
@@ -96,7 +96,7 @@ tap.test('GET /contracts', async test => {
       .set('profile_id', 5)
 
     assert.equal(response.statusCode, 200)
-    assert.strictSame(response.body, expectedBody)
+    assert.strictSame(removeMetadata(response.body), expectedBody)
     assert.end()
   })
   test.end()
