@@ -7,7 +7,7 @@ const request = require('supertest')
 
 app.use(bodyParser.json())
 
-tap.test('GET contract by id', async test => {
+tap.test('GET /contracts/:id by id', async test => {
   test.test('200 - return the contract given an id', async assert => {
     // TODO change the check on createdAt and updatedAt
     const expectedBody = {
@@ -47,7 +47,7 @@ tap.test('GET contract by id', async test => {
   test.end()
 })
 
-tap.test('GET contracts', async test => {
+tap.test('GET /contracts', async test => {
   test.test('200 - return the list of contracts given a profile id', async assert => {
     const expectedBody = [
       {
