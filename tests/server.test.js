@@ -87,5 +87,17 @@ tap.test('GET contracts', async test => {
     assert.strictSame(response.body, expectedBody)
     assert.end()
   })
+
+  test.test('200 - return the list of contracts given a profile id, only non terminated', async assert => {
+    const expectedBody = []
+
+    const response = await request(app)
+      .get('/contracts')
+      .set('profile_id', 5)
+
+    assert.equal(response.statusCode, 200)
+    assert.strictSame(response.body, expectedBody)
+    assert.end()
+  })
   test.end()
 })
