@@ -3,3 +3,4 @@ node_modules
 database.sqlite3
 
 .nyc_output
+instructions.md
