@@ -4,17 +4,14 @@ const tap = require('tap')
 const app = require('../src/app')
 const bodyParser = require('body-parser')
 const request = require('supertest')
+const {
+  removeMetadata,
+} = require('./utils')
 
 app.use(bodyParser.json())
 
 // warning: this is an in place operation
-const removeMetadata = (records) => {
-  return records.map(record => {
-    delete record.createdAt
-    delete record.updatedAt
-    return record
-  })
-}
+
 
 tap.test('GET /contracts/:id by id', async test => {
   test.test('200 - return the contract given an id', async assert => {

@@ -14,18 +14,18 @@ const {
   PROFILE_TYPES,
 } = require('../model')
 
-const getMostPaidJob = (jobSumByProfession) => {
-  let mostPaidProfession
+const getHighestValue = (jobSumByField) => {
+  let mostPaid
   let mostPaidJobs = 0
-  for (const [profession, jobSum] of Object.entries(jobSumByProfession)) {
+  for (const [field, jobSum] of Object.entries(jobSumByField)) {
     if (jobSum >= mostPaidJobs) {
       mostPaidJobs = jobSum
-      mostPaidProfession = profession
+      mostPaid = field
     }
   }
 
   return {
-    profession: mostPaidProfession,
+    id: mostPaid,
     sum: mostPaidJobs,
   }
 }
@@ -47,6 +47,19 @@ const getJobSumByProfession = (profiles) => {
     }
   })
   return profilesByProfession
+}
+
+const getJobSumByClient = (profiles) => {
+  const profilesByClient = {}
+  profiles.forEach(({ id, Client }) => {
+    const jobs = Client.map(contr => contr.Jobs).flat()
+    if (profilesByClient[id] === undefined) {
+      profilesByClient[id] = getJobSum(jobs)
+    } else {
+      profilesByClient[id] += getJobSum(jobs)
+    }
+  })
+  return profilesByClient
 }
 
 /**
@@ -87,9 +100,56 @@ router.get('/admin/best-profession', getProfile, async(req, res) => {
     } })
 
   const jobSumByProfession = getJobSumByProfession(profiles)
-  const bestProfession = getMostPaidJob(jobSumByProfession)
+  const bestProfession = getHighestValue(jobSumByProfession)
 
-  res.status(200).json(bestProfession)
+  res.status(200).json({
+    profession: bestProfession.id,
+    sum: bestProfession.sum,
+  })
+})
+
+router.get('/admin/best-clients', getProfile, async(req, res) => {
+  const { start, end, limit } = req.query
+  const startDate = DateTime.fromISO(start)
+  const endDate = DateTime.fromISO(end)
+  if (!startDate.isValid || !endDate.isValid) {
+    logger.error({ start, end }, 'Invalid date provided')
+    return res.status(400).json({
+      error: 'INVALID_DATES',
+      message: 'The provided dates are not in the valid format',
+    })
+  }
+
+  const profiles = await Profile.findAll({ where: { type: PROFILE_TYPES.CLIENT },
+    include: {
+      model: Contract,
+      as: 'Client',
+      where: {
+        [Op.or]: [
+          { status: 'new' },
+          { status: 'in_progress' },
+        ],
+      },
+      include: {
+        model: Job,
+        as: 'Jobs',
+        where: {
+          paid: true,
+          paymentDate: {
+            [Op.gt]: startDate.toISO(),
+            [Op.lt]: endDate.toISO(),
+          },
+        },
+      },
+    } })
+
+  const jobSumByClient = getJobSumByClient(profiles)
+  const bestClient = getHighestValue(jobSumByClient)
+
+  res.status(200).json([{
+    client: bestClient.id,
+    sum: bestClient.sum,
+  }])
 })
 
 module.exports = router

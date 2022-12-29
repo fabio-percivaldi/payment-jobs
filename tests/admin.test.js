@@ -9,9 +9,9 @@ const seed = require('../scripts/seedDb')
 
 app.use(bodyParser.json())
 
-tap.only('GET /admin/best-profession?start=<date>&end=<date>', async test => {
+tap.test('GET /admin/best-profession?start=<date>&end=<date>', async test => {
   await seed()
-  test.only('200 - return the best profession', async assert => {
+  test.test('200 - return the best profession', async assert => {
     const expectedBody = {
       profession: 'Programmer',
       sum: 2683,
@@ -47,6 +47,28 @@ tap.only('GET /admin/best-profession?start=<date>&end=<date>', async test => {
       .set('profile_id', 1)
 
     assert.equal(response.statusCode, 400)
+
+    assert.end()
+  })
+
+  test.end()
+})
+
+
+tap.test('GET /admin/best-clients?start=<date>&end=<date>&limit=<integer>', async test => {
+  await seed()
+  test.test('200 - return the first most paying client', async assert => {
+    const expectedBody = [{
+      client: '4',
+      sum: 2020,
+    }]
+
+    const response = await request(app)
+      .get('/admin/best-clients?start=2015-01-01T00:00:00.000Z&end=2022-12-31T00:00:00.000Z&limit=1')
+      .set('profile_id', 1)
+
+    assert.equal(response.statusCode, 200)
+    assert.strictSame(response.body, expectedBody)
 
     assert.end()
   })

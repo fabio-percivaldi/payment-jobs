@@ -8,16 +8,9 @@ const { Profile } = require('../src/model')
 const {
   depositFunds,
   createUnpaidJob,
+  removeMetadata,
 } = require('./utils')
 app.use(bodyParser.json())
-// warning: this is an in place operation
-const removeMetadata = (records) => {
-  return records.map(record => {
-    delete record.createdAt
-    delete record.updatedAt
-    return record
-  })
-}
 
 tap.test('GET /jobs/unpaid by id', async test => {
   test.test('200 - return the list of unpaid jobs given a client id', async assert => {
