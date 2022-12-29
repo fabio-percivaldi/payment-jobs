@@ -96,7 +96,6 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
     logger.error({ job: jobId }, 'Only clients can pay jobs')
     return res.status(401).json({
       error: 'UNAUTHORIZED_PAY',
-      errorCode: '4001',
       message: 'Only clients can pay jobs',
     })
   }
@@ -109,7 +108,6 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
     await paymentTransaction.rollback()
     return res.status(400).json({
       error: 'JOB_ALREADY_PAID',
-      errorCode: '4003',
       message: `The job with ${jobId} id is already paid`,
     })
   }
@@ -117,7 +115,6 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
     await paymentTransaction.rollback()
     return res.status(404).json({
       error: 'NOT_FOUND',
-      errorCode: '4004',
       message: `Job with ${jobId} not found`,
     })
   }
@@ -140,7 +137,6 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
       if (error.parent.code === DATABASE_ERROR.LOCK_ERROR) {
         return res.status(500).json({
           error: 'PAYMENT_ERROR',
-          errorCode: '5001',
           message: 'Error while paying a job',
         })
       }
@@ -149,7 +145,6 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
     await paymentTransaction.rollback()
     return res.status(400).json({
       error: 'INSUFFICIENT_BALANCE',
-      errorCode: '4002',
       message: 'The balance amount is not enough to pay the job',
     })
   }
