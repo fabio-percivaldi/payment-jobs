@@ -1,0 +1,28 @@
+'use strict'
+
+
+const tap = require('tap')
+const app = require('../src/app')
+const bodyParser = require('body-parser')
+const request = require('supertest')
+app.use(bodyParser.json())
+
+tap.test('GET /admin/best-profession?start=<date>&end=<date>', async test => {
+  test.test('200 - return the best profession', async assert => {
+    const expectedBody = {
+      profession: 'Programmer',
+      sum: 12683,
+    }
+    const response = await request(app)
+      .get('/admin/best-profession?start=2022-01-01T00:00:00.000Z&end=2022-12-31T00:00:00.000Z')
+      .set('profile_id', 1)
+
+    assert.equal(response.statusCode, 200)
+    assert.strictSame(response.body, expectedBody)
+
+    assert.end()
+  })
+
+  test.end()
+})
+
