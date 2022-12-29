@@ -3,6 +3,7 @@
 const express = require('express')
 const router = express.Router()
 const { Op } = require('sequelize')
+const { sequelize } = require('../model')
 const { getProfile } = require('../middleware/getProfile')
 const { DateTime } = require('luxon')
 const logger = require('pino')()
@@ -14,52 +15,13 @@ const {
   PROFILE_TYPES,
 } = require('../model')
 
-const getHighestValue = (jobSumByField) => {
-  let mostPaid
-  let mostPaidJobs = 0
-  for (const [field, jobSum] of Object.entries(jobSumByField)) {
-    if (jobSum >= mostPaidJobs) {
-      mostPaidJobs = jobSum
-      mostPaid = field
-    }
-  }
-
-  return {
-    id: mostPaid,
-    sum: mostPaidJobs,
-  }
-}
-
-const getJobSum = (jobs) => {
-  return jobs.reduce((prev, curr) => {
-    return prev + curr.price
-  }, 0)
-}
-
-const getJobSumByProfession = (profiles) => {
-  const profilesByProfession = {}
-  profiles.forEach(({ profession, Contractor }) => {
-    const jobs = Contractor.map(contr => contr.Jobs).flat()
-    if (profilesByProfession[profession] === undefined) {
-      profilesByProfession[profession] = getJobSum(jobs)
-    } else {
-      profilesByProfession[profession] += getJobSum(jobs)
+const mapProfilesToResponse = (profiles) => {
+  return profiles.map(profile => {
+    return {
+      client: profile.id,
+      sum: profile.dataValues.jobSum,
     }
   })
-  return profilesByProfession
-}
-
-const getJobSumByClient = (profiles) => {
-  const profilesByClient = {}
-  profiles.forEach(({ id, Client }) => {
-    const jobs = Client.map(contr => contr.Jobs).flat()
-    if (profilesByClient[id] === undefined) {
-      profilesByClient[id] = getJobSum(jobs)
-    } else {
-      profilesByClient[id] += getJobSum(jobs)
-    }
-  })
-  return profilesByClient
 }
 
 /**
@@ -76,7 +38,13 @@ router.get('/admin/best-profession', getProfile, async(req, res) => {
       message: 'The provided dates are not in the valid format',
     })
   }
-  const profiles = await Profile.findAll({ where: { type: PROFILE_TYPES.CONTRACTOR },
+  const profiles = await Profile.findAll({
+    where: { type: PROFILE_TYPES.CONTRACTOR },
+    attributes: [
+      'id',
+      'profession',
+      [sequelize.fn('sum', sequelize.col('price')), 'jobSum'],
+    ],
     include: {
       model: Contract,
       as: 'Contractor',
@@ -97,19 +65,20 @@ router.get('/admin/best-profession', getProfile, async(req, res) => {
           },
         },
       },
-    } })
-
-  const jobSumByProfession = getJobSumByProfession(profiles)
-  const bestProfession = getHighestValue(jobSumByProfession)
+    },
+    group: 'profession',
+    order: [['jobSum', 'DESC']],
+  })
+  const [mostPaidJob] = profiles
 
   res.status(200).json({
-    profession: bestProfession.id,
-    sum: bestProfession.sum,
+    profession: mostPaidJob.profession,
+    sum: mostPaidJob.dataValues.jobSum,
   })
 })
 
 router.get('/admin/best-clients', getProfile, async(req, res) => {
-  const { start, end, limit } = req.query
+  const { start, end, limit = 2 } = req.query
   const startDate = DateTime.fromISO(start)
   const endDate = DateTime.fromISO(end)
   if (!startDate.isValid || !endDate.isValid) {
@@ -120,7 +89,12 @@ router.get('/admin/best-clients', getProfile, async(req, res) => {
     })
   }
 
-  const profiles = await Profile.findAll({ where: { type: PROFILE_TYPES.CLIENT },
+  const profiles = await Profile.findAll({
+    where: { type: PROFILE_TYPES.CLIENT },
+    attributes: [
+      'id',
+      [sequelize.fn('sum', sequelize.col('price')), 'jobSum'],
+    ],
     include: {
       model: Contract,
       as: 'Client',
@@ -141,15 +115,14 @@ router.get('/admin/best-clients', getProfile, async(req, res) => {
           },
         },
       },
-    } })
+    },
+    group: 'ClientId',
+    order: [['jobSum', 'DESC']],
+  })
 
-  const jobSumByClient = getJobSumByClient(profiles)
-  const bestClient = getHighestValue(jobSumByClient)
+  const response = mapProfilesToResponse(profiles)
 
-  res.status(200).json([{
-    client: bestClient.id,
-    sum: bestClient.sum,
-  }])
+  res.status(200).json(response.slice(0, limit))
 })
 
 module.exports = router
