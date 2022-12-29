@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "nodemon ./src/server.js",
-    "seed": "node ./scripts/seedDb.js",
+    "seed": "node ./scripts/index.js",
     "lint": "eslint . --ignore-path=.gitignore",
     "unit": "tap -b tests/*.test.js tests/**/*.test.js tests/**/**/*.test.js",
     "test": "npm run unit"
