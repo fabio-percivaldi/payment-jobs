@@ -4,8 +4,11 @@ const tap = require('tap')
 const app = require('../src/app')
 const bodyParser = require('body-parser')
 const request = require('supertest')
-const { Job, Profile } = require('../src/model')
-
+const { Profile } = require('../src/model')
+const {
+  depositFunds,
+  createUnpaidJob,
+} = require('./utils')
 app.use(bodyParser.json())
 // warning: this is an in place operation
 const removeMetadata = (records) => {
@@ -66,23 +69,10 @@ tap.test('GET /jobs/unpaid by id', async test => {
   test.end()
 })
 
-const createUnpaidJob = async(price = 200) => {
-  const job = await Job.create({
-    description: 'work',
-    price,
-    ContractId: 4,
-  })
-  return job.id
-}
-
-const depositFunds = async(amount = 1000) => {
-  await Profile.update({ balance: amount }, { where: { id: 2 } })
-}
-
 tap.test('POST /jobs/:job_id/pay a job', async test => {
   test.test('201 - balance is > than pay amount', async assert => {
     const jobId = await createUnpaidJob()
-    await depositFunds()
+    await depositFunds(1000, 2)
 
     const response = await request(app)
       .post(`/jobs/${jobId}/pay`)
@@ -97,7 +87,7 @@ tap.test('POST /jobs/:job_id/pay a job', async test => {
 
   test.test('400 - balance is < than pay amount', async assert => {
     const jobId = await createUnpaidJob()
-    await depositFunds(100)
+    await depositFunds(100, 2)
 
     const response = await request(app)
       .post(`/jobs/${jobId}/pay`)
@@ -112,7 +102,7 @@ tap.test('POST /jobs/:job_id/pay a job', async test => {
 
   test.test('201 - two concurrent payment are made but only one is performed', async assert => {
     const jobId = await createUnpaidJob()
-    await depositFunds(300)
+    await depositFunds(300, 2)
 
     const responses = await Promise.all([request(app)
       .post(`/jobs/${jobId}/pay`)

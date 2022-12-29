@@ -8,16 +8,16 @@ const request = require('supertest')
 const {
   Profile,
 } = require('../src/model')
+const {
+  depositFunds,
+} = require('./utils')
 
 app.use(bodyParser.json())
 
-const depositFunds = async(amount = 1000) => {
-  await Profile.update({ balance: amount }, { where: { id: 1 } })
-}
 
 tap.test('POST /balances/deposit/:userId', async test => {
   test.test('201 - balance is updated', async assert => {
-    await depositFunds(200)
+    await depositFunds(200, 1)
 
     const response = await request(app)
       .post('/balances/deposit/1')
