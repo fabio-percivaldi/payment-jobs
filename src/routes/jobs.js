@@ -120,6 +120,12 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
         message: 'Error while paying a job',
       })
     }
+  } else {
+    res.status(400).json({
+      error: 'INSUFFICIENT_BALANCE',
+      errorCode: '4002',
+      message: 'The balance amount is not enough to pay the job',
+    })
   }
   res.status(201).end()
 })

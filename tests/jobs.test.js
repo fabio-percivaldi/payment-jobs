@@ -75,15 +75,15 @@ const createUnpaidJob = async() => {
   return job.id
 }
 
-const depositFunds = async() => {
-  await Profile.update({ balance: 1000 }, { where: { id: 2 } })
+const depositFunds = async(amount = 1000) => {
+  await Profile.update({ balance: amount }, { where: { id: 2 } })
 }
 
 tap.test('POST /jobs/:job_id/pay a job', async test => {
-  const jobId = await createUnpaidJob()
-  await depositFunds()
-
   test.test('201 - balance is > than pay amount', async assert => {
+    const jobId = await createUnpaidJob()
+    await depositFunds()
+
     const response = await request(app)
       .post(`/jobs/${jobId}/pay`)
       .set('profile_id', 2)
@@ -92,6 +92,21 @@ tap.test('POST /jobs/:job_id/pay a job', async test => {
 
     const profile = await Profile.findOne({ where: { id: 2 } })
     assert.equal(profile.balance, 800)
+    assert.end()
+  })
+
+  test.test('400 - balance is < than pay amount', async assert => {
+    const jobId = await createUnpaidJob()
+    await depositFunds(100)
+
+    const response = await request(app)
+      .post(`/jobs/${jobId}/pay`)
+      .set('profile_id', 2)
+
+    assert.equal(response.statusCode, 400)
+
+    const profile = await Profile.findOne({ where: { id: 2 } })
+    assert.equal(profile.balance, 100)
     assert.end()
   })
 
