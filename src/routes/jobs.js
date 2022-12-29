@@ -7,7 +7,12 @@ const { sequelize } = require('../model')
 const { Op } = require('sequelize')
 const { getProfile } = require('../middleware/getProfile')
 const {
-  PROFILE_TYPES, CONTRACT_STATUS, Job, Contract, Profile,
+  PROFILE_TYPES,
+  CONTRACT_STATUS,
+  DATABASE_ERROR,
+  Job,
+  Contract,
+  Profile,
 } = require('../model')
 
 /**
@@ -48,30 +53,31 @@ router.get('/jobs/unpaid', getProfile, async(req, res) => {
   res.json(jobs.flat())
 })
 
-const payJob = async(job, clientProfile, contractorProfile) => {
-  const paymentTransaction = await sequelize.transaction()
-
+const payJob = async(job, clientProfile, contractorProfile, paymentTransaction) => {
   try {
     job.paid = true
     job.paymentDate = new Date()
-    await job.save()
+    await job.save({ transaction: paymentTransaction })
   } catch (error) {
-    logger.error({ error: error.message }, 'Error while updating payment')
+    logger.error({ error: error.message, job: job.id }, 'Error while updating payment')
     await paymentTransaction.rollback()
+    throw error
   }
   try {
     clientProfile.balance -= job.price
-    await clientProfile.save()
+    await clientProfile.save({ transaction: paymentTransaction })
   } catch (error) {
     logger.error({ error: error.message }, 'Error while updating client balance')
     await paymentTransaction.rollback()
+    throw error
   }
   try {
     contractorProfile.balance += job.price
-    await contractorProfile.save()
+    await contractorProfile.save({ transaction: paymentTransaction })
   } catch (error) {
     logger.error({ error: error.message }, 'Error while updating contractor balance')
     await paymentTransaction.rollback()
+    throw error
   }
   await paymentTransaction.commit()
 }
@@ -79,6 +85,7 @@ const payJob = async(job, clientProfile, contractorProfile) => {
 /**
  * @returns pay a job
  */
+// eslint-disable-next-line max-statements
 router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
   const { profile } = req
   const { job_id: jobId } = req.params
@@ -86,17 +93,34 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
   const { balance, type } = profile
 
   if (type !== PROFILE_TYPES.CLIENT) {
-    logger.error('Only clients can pay jobs')
-    res.status(401).json({
+    logger.error({ job: jobId }, 'Only clients can pay jobs')
+    return res.status(401).json({
       error: 'UNAUTHORIZED_PAY',
       errorCode: '4001',
       message: 'Only clients can pay jobs',
     })
   }
 
-  const job = await Job.findOne({ where: { id: jobId } })
+  const paymentTransaction = await sequelize.transaction()
+  const job = await Job.findOne({ where: { id: jobId }, transaction: paymentTransaction })
 
-  if (!job) { return res.status(404).end() }
+  const { paid } = job
+  if (paid) {
+    await paymentTransaction.rollback()
+    return res.status(400).json({
+      error: 'JOB_ALREADY_PAID',
+      errorCode: '4003',
+      message: `The job with ${jobId} id is already paid`,
+    })
+  }
+  if (!job) {
+    await paymentTransaction.rollback()
+    return res.status(404).json({
+      error: 'NOT_FOUND',
+      errorCode: '4004',
+      message: `Job with ${jobId} not found`,
+    })
+  }
   const {
     price,
     ContractId,
@@ -111,17 +135,19 @@ router.post('/jobs/:job_id/pay', getProfile, async(req, res) => {
 
     const { Contractor: contractor } = contract
     try {
-      await payJob(job, profile, contractor)
+      await payJob(job, profile, contractor, paymentTransaction)
     } catch (error) {
-      logger.error({ error: error.message, job: jobId }, 'Error while paying job')
-      res.status(500).json({
-        error: 'PAYMENT_ERROR',
-        errorCode: '5001',
-        message: 'Error while paying a job',
-      })
+      if (error.parent.code === DATABASE_ERROR.LOCK_ERROR) {
+        return res.status(500).json({
+          error: 'PAYMENT_ERROR',
+          errorCode: '5001',
+          message: 'Error while paying a job',
+        })
+      }
     }
   } else {
-    res.status(400).json({
+    await paymentTransaction.rollback()
+    return res.status(400).json({
       error: 'INSUFFICIENT_BALANCE',
       errorCode: '4002',
       message: 'The balance amount is not enough to pay the job',

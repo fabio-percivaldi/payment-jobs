@@ -1,7 +1,9 @@
 'use strict'
 
 const Sequelize = require('sequelize')
-
+const DATABASE_ERROR = {
+  LOCK_ERROR: 'SQLITE_BUSY',
+}
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './database.sqlite3',
@@ -99,4 +101,5 @@ module.exports = {
   Job,
   PROFILE_TYPES,
   CONTRACT_STATUS,
+  DATABASE_ERROR,
 }

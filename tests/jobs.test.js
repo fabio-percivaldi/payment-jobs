@@ -66,10 +66,10 @@ tap.test('GET /jobs/unpaid by id', async test => {
   test.end()
 })
 
-const createUnpaidJob = async() => {
+const createUnpaidJob = async(price = 200) => {
   const job = await Job.create({
     description: 'work',
-    price: 200,
+    price,
     ContractId: 4,
   })
   return job.id
@@ -104,6 +104,25 @@ tap.test('POST /jobs/:job_id/pay a job', async test => {
       .set('profile_id', 2)
 
     assert.equal(response.statusCode, 400)
+
+    const profile = await Profile.findOne({ where: { id: 2 } })
+    assert.equal(profile.balance, 100)
+    assert.end()
+  })
+
+  test.test('201 - two concurrent payment are made but only one is performed', async assert => {
+    const jobId = await createUnpaidJob()
+    await depositFunds(300)
+
+    const responses = await Promise.all([request(app)
+      .post(`/jobs/${jobId}/pay`)
+      .set('profile_id', 2),
+    request(app)
+      .post(`/jobs/${jobId}/pay`)
+      .set('profile_id', 2)])
+
+    assert.equal(responses[0].statusCode, 201)
+    assert.equal(responses[1].statusCode, 500)
 
     const profile = await Profile.findOne({ where: { id: 2 } })
     assert.equal(profile.balance, 100)
