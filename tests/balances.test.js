@@ -16,7 +16,7 @@ app.use(bodyParser.json())
 
 
 tap.test('POST /balances/deposit/:userId', async test => {
-  test.test('201 - balance is updated', async assert => {
+  test.test('204 - balance is updated', async assert => {
     await depositFunds(200, 1)
 
     const response = await request(app)
