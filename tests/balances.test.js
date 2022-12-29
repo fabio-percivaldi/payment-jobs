@@ -31,6 +31,36 @@ tap.test('POST /balances/deposit/:userId', async test => {
     assert.end()
   })
 
+  test.test('400 - balance is not updated, the amount is too high', async assert => {
+    await depositFunds(200, 1)
+
+    const response = await request(app)
+      .post('/balances/deposit/1')
+      .set('profile_id', 1)
+      .send({ amount: 1000 })
+
+    assert.equal(response.statusCode, 400)
+
+    const profile = await Profile.findOne({ where: { id: 1 } })
+    assert.equal(profile.balance, 200)
+    assert.end()
+  })
+
+  test.test('401 - profileId is different to userId', async assert => {
+    await depositFunds(200, 1)
+
+    const response = await request(app)
+      .post('/balances/deposit/1')
+      .set('profile_id', 2)
+      .send({ amount: 1000 })
+
+    assert.equal(response.statusCode, 401)
+
+    const profile = await Profile.findOne({ where: { id: 1 } })
+    assert.equal(profile.balance, 200)
+    assert.end()
+  })
+
   test.end()
 })
 
