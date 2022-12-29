@@ -4,6 +4,9 @@ const express = require('express')
 const router = express.Router()
 const { Op } = require('sequelize')
 const { getProfile } = require('../middleware/getProfile')
+const { DateTime } = require('luxon')
+const logger = require('pino')()
+
 const {
   Profile,
   Job,
@@ -47,10 +50,19 @@ const getJobSumByProfession = (profiles) => {
 }
 
 /**
- * @returns contract by id
+ * @returns best paid profession in a data range
  */
 router.get('/admin/best-profession', getProfile, async(req, res) => {
-  const { start: startDate, end: endDate } = req.query
+  const { start, end } = req.query
+  const startDate = DateTime.fromISO(start)
+  const endDate = DateTime.fromISO(end)
+  if (!startDate.isValid || !endDate.isValid) {
+    logger.error({ start, end }, 'Invalid date provided')
+    return res.status(400).json({
+      error: 'INVALID_DATES',
+      message: 'The provided dates are not in the valid format',
+    })
+  }
   const profiles = await Profile.findAll({ where: { type: PROFILE_TYPES.CONTRACTOR },
     include: {
       model: Contract,
@@ -67,8 +79,8 @@ router.get('/admin/best-profession', getProfile, async(req, res) => {
         where: {
           paid: true,
           paymentDate: {
-            [Op.gt]: startDate,
-            [Op.lt]: endDate,
+            [Op.gt]: startDate.toISO(),
+            [Op.lt]: endDate.toISO(),
           },
         },
       },

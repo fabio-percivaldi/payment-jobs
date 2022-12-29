@@ -9,9 +9,9 @@ const seed = require('../scripts/seedDb')
 
 app.use(bodyParser.json())
 
-tap.test('GET /admin/best-profession?start=<date>&end=<date>', async test => {
+tap.only('GET /admin/best-profession?start=<date>&end=<date>', async test => {
   await seed()
-  test.test('200 - return the best profession', async assert => {
+  test.only('200 - return the best profession', async assert => {
     const expectedBody = {
       profession: 'Programmer',
       sum: 2683,
@@ -37,6 +37,16 @@ tap.test('GET /admin/best-profession?start=<date>&end=<date>', async test => {
 
     assert.equal(response.statusCode, 200)
     assert.strictSame(response.body, expectedBody)
+
+    assert.end()
+  })
+
+  test.test('400 - using invalid date', async assert => {
+    const response = await request(app)
+      .get('/admin/best-profession?start=2020-15-01T17:11:26.737Z&end=2020-08-16T19:11:26.737Z')
+      .set('profile_id', 1)
+
+    assert.equal(response.statusCode, 400)
 
     assert.end()
   })
