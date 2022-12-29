@@ -50,6 +50,7 @@ const getJobSumByProfession = (profiles) => {
  * @returns contract by id
  */
 router.get('/admin/best-profession', getProfile, async(req, res) => {
+  const { start: startDate, end: endDate } = req.query
   const profiles = await Profile.findAll({ where: { type: PROFILE_TYPES.CONTRACTOR },
     include: {
       model: Contract,
@@ -65,6 +66,10 @@ router.get('/admin/best-profession', getProfile, async(req, res) => {
         as: 'Jobs',
         where: {
           paid: true,
+          paymentDate: {
+            [Op.gt]: startDate,
+            [Op.lt]: endDate,
+          },
         },
       },
     } })
