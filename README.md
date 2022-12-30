@@ -25,3 +25,18 @@ after calling `npm start` the server will start on `http://localhost:3001` navi
 
 ## Test the APIs
 to test the APIs it's possible to run the `npm test` command
+
+## out of time
+To complete all the APIs it took me about 5 hours, writing all the test cases took me a while but i think it's worth the extra effort. 
+I took also some times to add the swagger of the APIs in order to test them. 
+
+## What's missing
+### Authentication/Authorization mechanism 
+at least a simple basic auth is in my opinion mandatory, a client-credentials flow if they are machine-to-machine APIs
+
+### Health routes
+I use to deploy on kubernetes so healtiness and readiness routes are mandatory to implement, in this case the probes should check if the connection to the database is healthy
+
+### Environment Variable Setup
+In this exercise we are connecting to a local DB but in a real scenario we would need env variable to specifica database connection string and credentials
+
