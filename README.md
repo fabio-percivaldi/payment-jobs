@@ -22,3 +22,6 @@ The exercise requires [Node.js](https://nodejs.org/en/) to be installed. We reco
 ## Try the APIs
 
 after calling `npm start` the server will start on `http://localhost:3001` navigating on `http://localhost:3001/api-docs/` it will be possible to navigate the swagger and try the APIs
+
+## Test the APIs
+to test the APIs it's possible to run the `npm test` command
