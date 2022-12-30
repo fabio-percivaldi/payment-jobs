@@ -18,3 +18,7 @@ The exercise requires [Node.js](https://nodejs.org/en/) to be installed. We reco
   
 
 1. Then run `npm start` which should start both the server and the React client.
+
+## Try the APIs
+
+after calling `npm start` the server will start on `http://localhost:3001` navigating on `http://localhost:3001/api-docs/` it will be possible to navigate the swagger and try the APIs
